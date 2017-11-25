@@ -37,13 +37,13 @@ module Nagios
           end
 
           def run(_args = [])
-            count = Timeout.timeout(options[:timeout]) { appliances_by_endpoint(options[:vo]).count }
+            count = Timeout.timeout(options[:timeout]) { appliances_by_endpoint.count }
             if count < 1
-              puts "APPLIANCES CRITICAL - No appliances found for VO #{options[:vo]} in AppDB"
+              puts "APPLIANCES CRITICAL - No appliances found for VO #{vo} in AppDB"
               exit 2
             end
 
-            puts "APPLIANCES OK - Found #{count} appliances for VO #{options[:vo]} in AppDB"
+            puts "APPLIANCES OK - Found #{count} appliances for VO #{vo} in AppDB"
           rescue => ex
             puts "APPLIANCES UNKNOWN - #{ex.message}"
             puts ex.backtrace if options[:debug]

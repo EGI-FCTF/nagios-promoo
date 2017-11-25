@@ -33,15 +33,17 @@ module Nagios
 }
 |.freeze
 
-          attr_reader :options, :endpoint
+          attr_reader :options, :endpoint, :vo
 
           def initialize(options)
             @options = options
-            @endpoint = options[:endpoint].gsub(%r{/+$}, '')
+            @endpoint = options.fetch(:endpoint)
+            @vo = options.fetch(:vo, nil)
           end
 
           def sizes_by_endpoint
             return @_sizes if @_sizes
+            raise '`endpoint` is a mandatory argument' if endpoint.blank?
 
             query = GQL_SIZES_BY_ENDPOINT.gsub('$$ENDPOINT$$', endpoint)
             @_sizes = make(query)['data']['siteServiceTemplates']['items']
@@ -50,8 +52,9 @@ module Nagios
             @_sizes
           end
 
-          def appliances_by_endpoint(vo)
+          def appliances_by_endpoint
             return @_appliances if @_appliances
+            raise '`endpoint` and `vo` are mandatory arguments' if endpoint.blank? || vo.blank?
 
             query = GQL_APPLIANCES_BY_ENDPOINT.gsub('$$ENDPOINT$$', endpoint).gsub('$$VO$$', vo)
             @_appliances = make(query)['data']['siteServiceImages']['items']

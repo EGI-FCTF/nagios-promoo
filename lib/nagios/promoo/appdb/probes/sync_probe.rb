@@ -76,20 +76,20 @@ module Nagios
             if wrong.any?
               if (@_last_update + options[:critical_after].hours) < Time.now
                 puts "SYNC CRITICAL - Appliance(s) #{wrong.inspect} missing " \
-                     "or outdated in #{options[:vo].inspect} " \
+                     "or outdated in #{vo.inspect} " \
                      "more than #{options[:critical_after]} hours after list publication [#{@_last_update}]"
                 exit 2
               end
 
               if (@_last_update + options[:warning_after].hours) < Time.now
                 puts "SYNC WARNING - Appliance(s) #{wrong.inspect} missing " \
-                     "or outdated in #{options[:vo].inspect} " \
+                     "or outdated in #{vo.inspect} " \
                      "more than #{options[:warning_after]} hours after list publication [#{@_last_update}]"
                 exit 1
               end
             end
 
-            puts "SYNC OK - All appliances registered in #{options[:vo].inspect} " \
+            puts "SYNC OK - All appliances registered in #{vo.inspect} " \
                  "are available [#{@_results[:expected].count}]"
           rescue => ex
             puts "SYNC UNKNOWN - #{ex.message}"
@@ -104,7 +104,7 @@ module Nagios
               mpuri_versionless = versionless_mpuri(hv_image['ad:mpuri'])
               @_results[:expected] << mpuri_versionless
 
-              matching = appliances_by_endpoint(options[:vo]).detect do |appl|
+              matching = appliances_by_endpoint.detect do |appl|
                 versionless_mpuri(appl['applicationEnvironmentRepository']) == mpuri_versionless
               end
 
@@ -152,7 +152,7 @@ module Nagios
           end
 
           def list_url
-            IMAGE_LIST_TEMPLATE.gsub('$$TOKEN$$', options[:token]).gsub('$$VO$$', options[:vo])
+            IMAGE_LIST_TEMPLATE.gsub('$$TOKEN$$', options[:token]).gsub('$$VO$$', vo)
           end
 
           def normalize_mpuri(mpuri)
